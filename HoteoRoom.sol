@@ -16,7 +16,7 @@ contract HotelRoom{
 
     event Occupy(address _occupant, uint _value);
 
-    Statuses currentStatus;
+    Statuses public currentStatus;
 
     address payable public owner;
 
@@ -37,8 +37,12 @@ contract HotelRoom{
 
     function book() payable public onlyWhileVacant onlySufficientEther(2 ether){
         
-        owner.transfer(msg.value);
         currentStatus = Statuses.Occupied;
+
+        owner.transfer(msg.value);
+
+        (bool sent,) = owner.call{value: msg.value}("");
+        require(sent, "Transfer failed.");
 
         emit Occupy(msg.sender, msg.value);
     }
